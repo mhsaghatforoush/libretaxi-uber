@@ -41,7 +41,6 @@ func (repo *Repository) SaveUser(user *objects.User) {
 		      "shadowBanned" = $10,
 		      "geog" = ST_SetSRID(ST_MakePoint($6, $7), 4326)
 		  `, user.UserId, user.MenuId, user.Username, user.FirstName, user.LastName, user.Lon, user.Lat, user.LanguageCode, user.ReportCnt, user.ShadowBanned)
-	defer result.Close()
 
 	if err != nil {
 		log.Println(err)
@@ -127,7 +126,7 @@ func (repo *Repository) ShowCallout(userId int64, featureName string) bool {
 }
 
 func (repo *Repository) DismissCallout(userId int64, featureName string) {
-	_, err := repo.db.Exec(`insert into dismissed_feature_callouts ("userId", "featureName") values ($1, $2) on conflict ("userId", "featureName") do nothing`, userId, featureName);
+	_, err := repo.db.Exec(`insert into dismissed_feature_callouts ("userId", "featureName") values ($1, $2) on conflict ("userId", "featureName") do nothing`, userId, featureName)
 	if err != nil {
 		log.Printf("Error while dismissing feature callout %s for user %d: %s", featureName, userId)
 		log.Println(err)
