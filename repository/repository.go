@@ -27,7 +27,7 @@ func (repo *Repository) FindUser(userId int64) *objects.User {
 func (repo *Repository) SaveUser(user *objects.User) {
 	// Upsert syntax: https://stackoverflow.com/questions/1109061/insert-on-duplicate-update-in-postgresql
 	// Geo populate syntax: https://gis.stackexchange.com/questions/145007/creating-geometry-from-lat-lon-in-table-using-postgis/145009
-	result, err := repo.db.Query(`
+	_, err := repo.db.Query(`
     INSERT INTO users ("userId", "menuId", "username", "firstName", "lastName", "lon", "lat", "geog", "languageCode", "reportCnt", "shadowBanned")
     VALUES ($1, $2, $3, $4, $5, $6, $7, ST_SetSRID(ST_MakePoint($7, $6), 4326), $8, $9, $10)
     ON CONFLICT ("userId") DO UPDATE
