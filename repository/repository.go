@@ -25,24 +25,23 @@ func (repo *Repository) FindUser(userId int64) *objects.User {
 }
 
 func (repo *Repository) SaveUser(user *objects.User) {
-	log.Println("****** SaveUser function called with UserID: *****", user.UserId)
 	// Upsert syntax: https://stackoverflow.com/questions/1109061/insert-on-duplicate-update-in-postgresql
 	// Geo populate syntax: https://gis.stackexchange.com/questions/145007/creating-geometry-from-lat-lon-in-table-using-postgis/145009
-	_, err := repo.db.Query(`
-    INSERT INTO users ("userId", "menuId", "username", "firstName", "lastName", "lon", "lat", "geog", "languageCode", "reportCnt", "shadowBanned")
-    VALUES ($1, $2, $3, $4, $5, $6, $7, ST_SetSRID(ST_MakePoint($7, $6), 4326), $8, $9, $10)
-    ON CONFLICT ("userId") DO UPDATE
-      SET "menuId" = $2,
-          "username" = $3,
-          "firstName" = $4,
-          "lastName" = $5,
-          "lon" = $6,
-          "lat" = $7,
-          "languageCode" = $8,
-          "reportCnt" = $9,
-          "shadowBanned" = $10,
-          "geog" = ST_SetSRID(ST_MakePoint($6, $7), 4326)
-`, user.UserId, user.MenuId, user.Username, user.FirstName, user.LastName, user.Lon, user.Lat, user.LanguageCode, user.ReportCnt, user.ShadowBanned)
+	result, err := repo.db.Query(`INSERT INTO users ("userId", "menuId", "username", "firstName", "lastName", "lon", "lat", "geog", "languageCode", "reportCnt", "shadowBanned")
+		VALUES ($1, $2, $3, $4, $5, $6, $7, ST_SetSRID(ST_MakePoint($7, $6), 4326), $8, $9, $10)
+		ON CONFLICT ("userId") DO UPDATE
+		  SET "menuId" = $2,
+		      "username" = $3,
+		      "firstName" = $4,
+		      "lastName" = $5,
+		      "lon" = $6,
+		      "lat" = $7,
+		      "languageCode" = $8,
+		      "reportCnt" = $9,
+		      "shadowBanned" = $10,
+		      "geog" = ST_SetSRID(ST_MakePoint($6, $7), 4326)
+		  `, user.UserId, user.MenuId, user.Username, user.FirstName, user.LastName, user.Lon, user.Lat, user.LanguageCode, user.ReportCnt, user.ShadowBanned)
+	defer result.Close()
 
 	if err != nil {
 		log.Println(err)
@@ -128,7 +127,7 @@ func (repo *Repository) ShowCallout(userId int64, featureName string) bool {
 }
 
 func (repo *Repository) DismissCallout(userId int64, featureName string) {
-	_, err := repo.db.Exec(`insert into dismissed_feature_callouts ("userId", "featureName") values ($1, $2) on conflict ("userId", "featureName") do nothing`, userId, featureName)
+	_, err := repo.db.Exec(`insert into dismissed_feature_callouts ("userId", "featureName") values ($1, $2) on conflict ("userId", "featureName") do nothing`, userId, featureName);
 	if err != nil {
 		log.Printf("Error while dismissing feature callout %s for user %d: %s", featureName, userId)
 		log.Println(err)
