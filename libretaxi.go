@@ -2,10 +2,6 @@ package main
 
 import (
 	"database/sql"
-	"github.com/go-telegram-bot-api/telegram-bot-api"
-	"github.com/leonelquinteros/gotext"
-	_ "github.com/lib/pq" // important
-	"go.uber.org/ratelimit"
 	"libretaxi/callback"
 	"libretaxi/config"
 	"libretaxi/context"
@@ -16,6 +12,16 @@ import (
 	"log"
 	"math/rand"
 	"time"
+
+	_ "github.com/lib/pq"
+
+	_ "github.com/lib/pq"
+
+	_ "github.com/lib/pq"
+
+	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api"
+	"github.com/leonelquinteros/gotext"
+	"go.uber.org/ratelimit"
 )
 
 func initContext() *context.Context {
@@ -29,16 +35,20 @@ func initContext() *context.Context {
 	if err != nil {
 		log.Panic(err)
 	}
-	// bot.Debug = true
 
 	log.Printf("Authorized on account %s", bot.Self.UserName)
 
-	db, err := sql.Open("postgres", config.C().Db_Conn_Str)
+	db, err := sql.Open("postgres", config.C().Db_Conn_Str+"?sslmode=disable")
 	if err != nil {
-		log.Fatal(err)
-	} else {
-		log.Print("Successfully connected to the database")
+		log.Fatal("Error opening database connection:", err)
 	}
+
+	err = db.Ping()
+	if err != nil {
+		log.Fatal("Error pinging database:", err)
+	}
+
+	log.Print("Successfully connected to the database")
 
 	context.Bot = bot
 	context.Repo = repository.NewRepository(db)
@@ -85,7 +95,6 @@ func main1() {
 			if err != nil {
 				log.Println(err)
 			}
-
 
 			callback.NewTgCallbackHandler().Handle(context, cb.Data)
 		}
@@ -146,7 +155,7 @@ func massAnnounce() {
 			msg := tgbotapi.NewMessage(userId, text)
 
 			context.RabbitPublish.PublishTgMessage(rabbit.MessageBag{
-				Message: msg,
+				Message:  msg,
 				Priority: 0, // LOWEST
 			})
 
@@ -172,5 +181,5 @@ func main() {
 	//go massAnnounce()
 
 	forever := make(chan bool)
-	<- forever
+	<-forever
 }
