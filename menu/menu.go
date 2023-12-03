@@ -2,10 +2,11 @@ package menu
 
 import (
 	"fmt"
-	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api"
 	"libretaxi/context"
 	"libretaxi/objects"
 	"log"
+
+	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api"
 )
 
 type Handler interface {
@@ -43,15 +44,16 @@ func HandleMessage(context *context.Context, userId int64, message *tgbotapi.Mes
 		// Init user if it's not present
 		if user == nil {
 			user = &objects.User{
-				UserId: userId,
-				MenuId: objects.Menu_Init,
-				ReportCnt: 0,
+				UserId:       userId,
+				MenuId:       objects.Menu_Init,
+				ReportCnt:    0,
 				ShadowBanned: false,
 			}
+			break
 		}
 
 		// Save recent user information
-		if message.From != nil  {
+		if message.From != nil {
 
 			user.Username = message.From.UserName
 			user.FirstName = message.From.FirstName
