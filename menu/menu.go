@@ -49,7 +49,6 @@ func HandleMessage(context *context.Context, userId int64, message *tgbotapi.Mes
 				ReportCnt:    0,
 				ShadowBanned: false,
 			}
-			break
 		}
 
 		// Save recent user information
