@@ -25,6 +25,7 @@ func (repo *Repository) FindUser(userId int64) *objects.User {
 }
 
 func (repo *Repository) SaveUser(user *objects.User) {
+	log.Println("****** SaveUser function called with UserID: *****", user.UserId)
 	// Upsert syntax: https://stackoverflow.com/questions/1109061/insert-on-duplicate-update-in-postgresql
 	// Geo populate syntax: https://gis.stackexchange.com/questions/145007/creating-geometry-from-lat-lon-in-table-using-postgis/145009
 	_, err := repo.db.Query(`
