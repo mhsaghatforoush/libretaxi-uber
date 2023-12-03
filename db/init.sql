@@ -6,6 +6,8 @@
 -- drop table posts;
 -- drop table users;
 
+CREATE EXTENSION postgis;
+
 create table if not exists users
 (
     "userId" bigint not null,
@@ -50,3 +52,5 @@ create table if not exists dismissed_feature_callouts (
 );
 
 create index if not exists idx_user_id_at_dismissed_feature_callouts on "dismissed_feature_callouts"("userId");
+
+CREATE ROLE libretaxi WITH LOGIN PASSWORD 'libretaxi';
